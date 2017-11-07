@@ -3,6 +3,7 @@ class Array
 {
 public:
 	explicit Array(size_t size = 0, const T& value = T()) : size_(size) {
+		data_ = new T[size];
 		for (size_t i = 0; i < size; ++i)
 		{
 			data_[i] = value;
