@@ -52,6 +52,8 @@ public:
 	class const_iterator
 		: public std::iterator<std::bidirectional_iterator_tag, const T, std::ptrdiff_t,  const T*, const T&>
 	{
+	protected:
+		const T* ptr;
 	public:
 		const_iterator(const T* i = nullptr) : ptr(i) {}
 		const_iterator(const const_iterator &other) : ptr(other.ptr) {}
@@ -67,8 +69,7 @@ public:
 		const_iterator operator--(int) { auto tmp(*this);	--ptr;	return tmp;	}
 		bool operator==(const const_iterator &other) const { return (ptr == other.ptr);	}
 		bool operator!=(const const_iterator &other) const { return !(*this == other); }
-	protected:
-		const T* ptr;
+
 	};
 	// определите методы begin / end
 	const_iterator begin() const {
@@ -79,10 +80,10 @@ public:
 	}
 	// определите const_reverse_iterator
 	class const_reverse_iterator
-		: const_iterator
+		: public const_iterator
 	{
 	public:
-		const_reverse_iterator(const T* i = nullptr) : const_iterator(i) {}
+		const_reverse_iterator(T* i = nullptr) : const_iterator(i) {}
 		const_reverse_iterator(const const_iterator &other) { this->ptr = other.ptr; }
 		const_reverse_iterator& operator=(const const_reverse_iterator &other) = default;
 		const_reverse_iterator& operator=(const T* i) { this->ptr = i; return *this; }
@@ -90,22 +91,22 @@ public:
 		const T& operator*() { return *this->ptr; }
 		const T& operator*() const { return *this->ptr; }
 		const T* operator->() { return this->ptr; }
-		const_iterator& operator++() { ++this->ptr; return *this; }
-		const_iterator operator++(int) { auto tmp(*this);	++this->ptr;	return tmp; }
-		const_iterator& operator--() { --this->ptr; return *this; }
-		const_iterator operator--(int) { auto tmp(*this);	--this->ptr;	return tmp; }
-		bool operator==(const const_iterator &other) const { return (this->ptr == other.ptr); }
-		bool operator!=(const const_iterator &other) const { return !(*this == other); }
-
+		const_reverse_iterator& operator++() { ++this->ptr; return *this; }
+		const_reverse_iterator operator++(int) { auto tmp(*this);	++this->ptr;	return tmp; }
+		const_reverse_iterator& operator--() { --this->ptr; return *this; }
+		const_reverse_iterator operator--(int) { auto tmp(*this);	--this->ptr;	return tmp; }
+		bool operator==(const const_reverse_iterator &other) const { return (this->ptr == other.ptr); }
+		bool operator!=(const const_reverse_iterator &other) const { return !(this->ptr == other.ptr); }
+        const_iterator base(){const_iterator forwardIterator(this->ptr); ++forwardIterator; return forwardIterator;}
 	};
 
 	// определите методы rbegin / rend
 	const_reverse_iterator rbegin() const {
-		const_reverse_iterator it(&*(data_.begin())->begin() + this->size() - 1);
+		const_reverse_iterator it(&(data_.front()[0]) + this->size());
 		return it;
 	}
 	const_reverse_iterator rend()   const {
-		const_reverse_iterator it(&*(data_.begin())->begin() - 1, size());
+		const_reverse_iterator it(&(data_.front()[0]));
 		return it;
 	}
 	
