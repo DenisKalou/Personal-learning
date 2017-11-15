@@ -50,66 +50,87 @@ public:
 
 	// определите const_iterator
 	class const_iterator
-		: public std::iterator<std::bidirectional_iterator_tag, const T, std::ptrdiff_t,  const T*, const T&>
+		: public std::iterator<std::bidirectional_iterator_tag, const T, std::ptrdiff_t, const T*, const T&>
 	{
 	protected:
 		const T* ptr;
 	public:
+		operator bool() const
+		{
+			if (ptr)
+				return true;
+			else
+				return false;
+		}
 		const_iterator(const T* i = nullptr) : ptr(i) {}
 		const_iterator(const const_iterator &other) : ptr(other.ptr) {}
 		const_iterator& operator=(const const_iterator &other) = default;
-		const_iterator& operator=(const T* i) {	ptr = i; return *this;	}
+		const_iterator& operator=(const T* i) { ptr = i; return *this; }
 		~const_iterator() {}
 		const T& operator*() { return *ptr; }
-		const T& operator*() const { return *ptr;}
-		const T* operator->() { return ptr;}
-		const_iterator& operator++() { ++ptr; return *this;	}
-		const_iterator operator++(int) {auto tmp(*this);	++ptr;	return tmp;	}
-		const_iterator& operator--() { --ptr; return *this;	}
-		const_iterator operator--(int) { auto tmp(*this);	--ptr;	return tmp;	}
-		bool operator==(const const_iterator &other) const { return (ptr == other.ptr);	}
+		const T& operator*() const { return *ptr; }
+		const T* operator->() { return ptr; }
+		const_iterator& operator++() { ++ptr; return *this; }
+		const_iterator operator++(int) { auto tmp(*this);	++ptr;	return tmp; }
+		const_iterator& operator--() { --ptr; return *this; }
+		const_iterator operator--(int) { auto tmp(*this);	--ptr;	return tmp; }
+		bool operator==(const const_iterator &other) const { return (ptr == other.ptr); }
 		bool operator!=(const const_iterator &other) const { return !(*this == other); }
-
+		const T* getPtr() const { return ptr; }
+		//const T* getConstPtr() const { return ptr; }
 	};
 	// определите методы begin / end
 	const_iterator begin() const {
+		if (this->size() == 0) {
+			return const_iterator();
+		}
 		return const_iterator(&(data_.front()[0]));
 	}
 	const_iterator end()  const {
-		return const_iterator (&(data_.front()[0]) + this->size());
+		if (this->size() == 0) {
+			return this->begin();
+		}
+		return const_iterator(&(data_.front()[0]) + this->size());
 	}
 	// определите const_reverse_iterator
 	class const_reverse_iterator
 		: public const_iterator
 	{
 	public:
-		const_reverse_iterator(T* i = nullptr) : const_iterator(i) {}
-		const_reverse_iterator(const const_iterator &other) { this->ptr = other.ptr; }
+		const_reverse_iterator(const T* i = nullptr) : const_iterator(i) {}
+		const_reverse_iterator(const const_iterator &other) { this->ptr = other.getPtr(); }
 		const_reverse_iterator& operator=(const const_reverse_iterator &other) = default;
 		const_reverse_iterator& operator=(const T* i) { this->ptr = i; return *this; }
+		const_reverse_iterator& operator=(const const_iterator &other) { this->ptr = other.getPtr(); return *this; }
 		~const_reverse_iterator() {}
 		const T& operator*() { return *this->ptr; }
 		const T& operator*() const { return *this->ptr; }
 		const T* operator->() { return this->ptr; }
-		const_reverse_iterator& operator++() { ++this->ptr; return *this; }
-		const_reverse_iterator operator++(int) { auto tmp(*this);	++this->ptr;	return tmp; }
-		const_reverse_iterator& operator--() { --this->ptr; return *this; }
-		const_reverse_iterator operator--(int) { auto tmp(*this);	--this->ptr;	return tmp; }
+		const_reverse_iterator& operator++() { --this->ptr; return *this; }
+		const_reverse_iterator operator++(int) { auto tmp(*this);	--this->ptr;	return tmp; }
+		const_reverse_iterator& operator--() { ++this->ptr; return *this; }
+		const_reverse_iterator operator--(int) { auto tmp(*this);	++this->ptr;	return tmp; }
 		bool operator==(const const_reverse_iterator &other) const { return (this->ptr == other.ptr); }
 		bool operator!=(const const_reverse_iterator &other) const { return !(this->ptr == other.ptr); }
-        const_iterator base(){const_iterator forwardIterator(this->ptr); ++forwardIterator; return forwardIterator;}
+		const_iterator base() { const_iterator forwardIterator(this->ptr); ++forwardIterator; return forwardIterator; }
 	};
 
 	// определите методы rbegin / rend
 	const_reverse_iterator rbegin() const {
-		const_reverse_iterator it(&(data_.front()[0]) + this->size());
+		if (this->size() == 0) {
+			return this->rend();
+		}
+		const_reverse_iterator it(&(data_.front()[-1]) + this->size());
 		return it;
 	}
 	const_reverse_iterator rend()   const {
-		const_reverse_iterator it(&(data_.front()[0]));
+		if (this->size() == 0) {
+			return const_reverse_iterator();
+		}
+		const_reverse_iterator it(&(data_.front()[-1]));
 		return it;
 	}
-	
+
 private:
 	ListT data_;
 };
@@ -144,11 +165,12 @@ int main() {
 	vlist.append(v2.begin(), v2.end());
 
 	//std::vector<int>::iterator vit = v1.begin();
-	//auto it = vlist.end();
-	size_t size = vlist.size();
-	for (auto it = vlist.begin(); it != vlist.end(); ++it) {
-		std::cout << *it << " " << std::endl;
-	//std::cout << *(vlist.begin()) << " " << std::endl;
+	//auto it = vlist.begin();
+	//size_t size = vlist.size();
+	//for (auto it = vlist.rbegin(); it != vlist.rend(); ++it) {
+	for(auto& it : vlist){
+		std::cout << it << " " << std::endl;
+		//std::cout << *(vlist.begin()) << " " << std::endl;
 	}
 
 	//cout << typeid(vit).name() << endl;
