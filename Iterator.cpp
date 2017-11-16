@@ -7,11 +7,6 @@
 #include <vector>
 //using namespace std;
 
-
-#include <vector>
-#include <list>
-#include <iterator>
-
 template<class T>
 class VectorList
 {
@@ -60,7 +55,7 @@ public:
 	protected:
 		size_t index;
 		const T* ptr;
-		ListT* data;
+		const ListT* data;
 	public:
 		operator bool() const
 		{
@@ -70,33 +65,62 @@ public:
 				return false;
 		}
 		const_iterator(const T* i = nullptr) : ptr(i) {}
-		const_iterator(const const_iterator &other) : index(other.index), ptr(other.ptr), data(other.data){}
-		const_iterator(const ListT* data, const T* i) : ptr(i), data(data) {}
+		const_iterator(const const_iterator &other) : index(other.index), ptr(other.ptr), data(other.data) {}
+		const_iterator(const ListT* data, const T* i, bool begin = false) : ptr(i), data(data) {
+			if (begin) {
+				index = 0;
+			}
+			else {
+				index = (*data).size() - 1;
+			}
+		}
 		const_iterator& operator=(const const_iterator &other) = default;
 		const_iterator& operator=(const T* i) { ptr = i; return *this; }
 		~const_iterator() {}
 		const T& operator*() { return *ptr; }
 		const T& operator*() const { return *ptr; }
 		const T* operator->() const { return ptr; }
-		const_iterator& operator++() { ptr = realPtr(); return *this; }
-		const_iterator operator++(int) { auto tmp(*this);	++ptr;	return tmp; }
-		const_iterator& operator--() { --ptr; return *this; }
-		const_iterator operator--(int) { auto tmp(*this);	--ptr;	return tmp; }
+		const_iterator& operator++() { ptr = realPtr('+'); return *this; }
+		const_iterator operator++(int) { auto tmp(*this);	ptr = realPtr('+');	return tmp; }
+		const_iterator& operator--() { ptr = realPtr('-'); return *this; }
+		const_iterator operator--(int) { auto tmp(*this);	ptr = realPtr('-');	return tmp; }
 		bool operator==(const const_iterator &other) const { return (ptr == other.ptr); }
 		bool operator!=(const const_iterator &other) const { return !(*this == other); }
 		const T* getPtr() const { return ptr; }
-		const T* realPtr() { 
-			++ptr;
-			auto it = (*data).begin();
-			for (size_t i = 0; i < index; ++i)
-			{
-				it++;
+		const T* realPtr(const char& op) {
+			if (op == '+') {
+				++ptr;
+				auto it = (*data).begin();
+				for (size_t i = 0; i < index; ++i)
+				{
+					++it;
+				}
+				std::cout << "ptr = " << ptr << " || iter = " << (&*((*it).end() - 1)) + 1 << std::endl;
+				if ((ptr == (&*((*it).end() - 1)) + 1) && (ptr != &*((*data).back().end() - 1) + 1)) {
+					++index;
+					++it;
+					ptr = &*(*(it)).begin();
+				}
 			}
-			if (ptr == (&*(it.end() - 1)) + 1) {
-				++index;
-				ptr = (it++).begin();
+			else {
+				--ptr;
+				auto it = (*data).begin();
+				for (size_t i = 0; i < index; ++i)
+				{
+					++it;
+				}
+				for (size_t i = index; i > index; --i)
+				{
+					--it;
+				}
+				std::cout << "ptr = " << ptr << " || iter = " << (&*((*it).begin())) - 1 << std::endl;
+				if ((ptr == (&*((*it).begin())) - 1) && (ptr != &((*data).front()[0]) - 1)) {
+					--index;
+					--it;
+					ptr = &*((*(it)).end() - 1);
+				}
 			}
-			return ptr; 
+			return ptr;
 		}
 	};
 	// определите методы begin / end
@@ -110,7 +134,7 @@ public:
 		if (this->size() == 0) {
 			return this->begin();
 		}
-		return const_iterator(&data_, &*(data_.back().end() - 1) + 1);
+		return const_iterator(&data_, &*(data_.back().end() - 1) + 1, true);
 	}
 	// определите const_reverse_iterator
 	class const_reverse_iterator
@@ -118,6 +142,7 @@ public:
 	{
 	public:
 		const_reverse_iterator(const T* i = nullptr) : const_iterator(i) {}
+		const_reverse_iterator(const ListT* data, const T* i, bool begin = false) : const_iterator(data, i, begin) {}
 		const_reverse_iterator(const const_iterator &other) { this->ptr = other.getPtr(); --this->ptr; }
 		const_reverse_iterator& operator=(const const_reverse_iterator &other) = default;
 		const_reverse_iterator& operator=(const T* i) { this->ptr = i; return *this; }
@@ -126,13 +151,48 @@ public:
 		const T& operator*() { return *this->ptr; }
 		const T& operator*() const { return *this->ptr; }
 		const T* operator->() const { return this->ptr; }
-		const_reverse_iterator& operator++() { --this->ptr; return *this; }
-		const_reverse_iterator operator++(int) { auto tmp(*this);	--this->ptr;	return tmp; }
-		const_reverse_iterator& operator--() { ++this->ptr; return *this; }
-		const_reverse_iterator operator--(int) { auto tmp(*this);	++this->ptr;	return tmp; }
+		const_reverse_iterator& operator++() { this->ptr = realPtr('+'); return *this; }
+		const_reverse_iterator operator++(int) { auto tmp(*this);	this->ptr = realPtr('+');	return tmp; }
+		const_reverse_iterator& operator--() { this->ptr = realPtr('-'); return *this; }
+		const_reverse_iterator operator--(int) { auto tmp(*this);	this->ptr = = realPtr('-');	return tmp; }
 		bool operator==(const const_reverse_iterator &other) const { return (this->ptr == other.ptr); }
 		bool operator!=(const const_reverse_iterator &other) const { return !(this->ptr == other.ptr); }
 		const_iterator base() { const_iterator forwardIterator(this->ptr); ++forwardIterator; return forwardIterator; }
+		const T* realPtr(const char& op) {
+			if (op == '-') {
+				++ptr;
+				auto it = (*data).begin();
+				for (size_t i = 0; i < index; ++i)
+				{
+					++it;
+				}
+				std::cout << "ptr = " << ptr << " || iter = " << (&*((*it).end() - 1)) + 1 << std::endl;
+				if ((ptr == (&*((*it).end() - 1)) + 1) && (ptr != &*((*data).back().end() - 1) + 1)) {
+					++index;
+					++it;
+					ptr = &*(*(it)).begin();
+				}
+			}
+			else {
+				--ptr;
+				auto it = (*data).begin();
+				for (size_t i = 0; i < index; ++i)
+				{
+					++it;
+				}
+				for (size_t i = index; i > index; --i)
+				{
+					--it;
+				}
+				std::cout << "ptr = " << ptr << " || iter = " << (&*((*it).begin())) - 1 << std::endl;
+				if ((ptr == (&*((*it).begin())) - 1) && (ptr != &((*data).front()[0]) - 1)) {
+					--index;
+					--it;
+					ptr = &*((*(it)).end() - 1);
+				}
+			}
+			return ptr;
+		}
 	};
 
 	// определите методы rbegin / rend
@@ -140,15 +200,13 @@ public:
 		if (this->size() == 0) {
 			return this->rend();
 		}
-		const_reverse_iterator it(&*(data_.back().end() - 1));
-		return it;
+		return const_reverse_iterator(&data_, &*(data_.back().end() - 1));
 	}
 	const_reverse_iterator rend()   const {
 		if (this->size() == 0) {
 			return const_reverse_iterator();
 		}
-		const_reverse_iterator it(&(data_.front()[0]) - 1);
-		return it;
+		return const_reverse_iterator(&data_, &(data_.front()[0]), true);
 	}
 	//void data() {
 	//	std::cout << &(data_.front()[0]) + this->size()) << std::endl;
@@ -183,41 +241,41 @@ int main() {
 	vl.append(v3.begin(), v3.end());
 	vl.append(v4.begin(), v4.end());
 	std::cout << "size = " << vl.size() << std::endl;
-	
-	for (auto& a : vl) {
-		//std::string a = *it;
-		std::cout << a << " ";
-	}
-	/*std::cout << std::endl;
-	std::cout << "distance = " << std::distance(vl.begin(), vl.end()) << std::endl;
 
+	for (auto i = vl.rbegin(); i != vl.rend(); ++i)
+	{
+		std::cout << *i << " ";
+	}
+
+	//for (auto& a : vl) {
+	//	std::cout << a << " ";
+	//}
+	std::cout << std::endl;
+	//std::cout << "distance = " << std::distance(vl.begin(), vl.end()) << std::endl;
 	VectorList<std::string>::const_iterator eit = vl.end();
 	for (; eit != vl.begin(); ++eit) {
-		
-		std::cout << *eit << " ";
+
+	std::cout << *eit << " ";
 	}
 	std::cout << std::endl;
-
 	VectorList<std::string>::const_reverse_iterator rit = vl.end();
 	for (; rit != vl.rend(); ++rit) {
-		std::string a = *rit;
-		std::cout << a << " ";
+	std::string a = *rit;
+	std::cout << a << " ";
 	}
 	std::cout << std::endl;
 	std::cout << "reverse distance = " << std::distance(vl.rbegin(), vl.rend()) << std::endl;
-
 	VectorList<std::string>::const_reverse_iterator erit = vl.rend();
 	for (; erit != vl.rbegin();) {
-		std::string a = *(--erit);
-		std::cout << a << " ";
+	std::string a = *(--erit);
+	std::cout << a << " ";
 	}
 	std::cout << std::endl;
-
 	VectorList<std::string>::const_iterator i = vl.rend().base();
 	for (; i != vl.end(); ++i) {
-		std::string a = *i;
-		std::cout << a << " ";
-	}*/
+	std::string a = *i;
+	std::cout << a << " ";
+	}
 	//vl.data();
 
 	std::cout << std::endl;
