@@ -78,7 +78,7 @@ public:
 			}
 		}
 		const_iterator(const const_iterator &other) : data(other.data), lptr(other.lptr), ptr(other.ptr) {}
-		const_iterator(const typename VectorList::const_reverse_iterator &other) : data(other.data), lptr(other.lptr), ptr(other.ptr) {}
+        const_iterator(const typename VectorList::const_reverse_iterator &other) : data(other.data), lptr(other.lptr), ptr(other.ptr) {}
 		const_iterator& operator=(const const_iterator &other) = default;
 		~const_iterator() {}
 		const T& operator*() { return *ptr; }
@@ -88,12 +88,10 @@ public:
 		const_iterator operator++(int) { auto tmp(*this);	++ptr; leap();	return tmp; }
 		const_iterator& operator--() { leapBack(); return *this; }
 		const_iterator operator--(int) { auto tmp(*this); leapBack();	return tmp; }
-		bool operator==(const const_iterator &other) const {
-			return (lptr == other.lptr) ? (ptr == other.ptr) : false;
-		}
-		bool operator!=(const const_iterator &other) const {
-			return !(*this == other);
-		}
+		bool operator==(const const_iterator &other) const { 
+			return (lptr == other.lptr)? (ptr == other.ptr) : false; }
+		bool operator!=(const const_iterator &other) const { 
+			return !(*this == other); }
 		void leap() {
 			if (ptr == (*lptr).end()) {
 				++lptr;
@@ -103,9 +101,8 @@ public:
 			}
 		}
 		void leapBack() {
-			if (lptr == (*data).end()) {
-				--lptr;
-			}
+			if (lptr == (*data).end()) { 
+				--lptr; }
 			if (flag) {
 				--lptr;
 				ptr = --(*lptr).end();
@@ -119,8 +116,8 @@ public:
 			}
 		}
 		const typename std::vector<T>::const_iterator getPtr() const { return ptr; }
-		const typename std::list<std::vector<T>>::const_iterator getLptr() const { return lptr; }
-		const ListT* getData() const { return data; }
+		const typename std::list<std::vector<T>>::const_iterator getLptr() const{ return lptr; }
+		const ListT* getData() const{ return data; }
 
 	};
 
@@ -152,12 +149,11 @@ public:
 			this->lptr = other.getLptr();
 		}
 		const_reverse_iterator& operator=(const const_reverse_iterator &other) = default;
-		const_reverse_iterator& operator=(const const_iterator &other) {
-			this->ptr = other.getPtr(); --this->ptr;
-			this->data = other.getData();
+		const_reverse_iterator& operator=(const const_iterator &other) { 
+			this->ptr = other.getPtr(); --this->ptr; 
+			this->data = other.getData(); 
 			this->lptr = other.getLptr();
-			return *this;
-		}
+			return *this; }
 		~const_reverse_iterator() {}
 		const T& operator*() { return *this->ptr; }
 		const T& operator*() const { return *this->ptr; }
@@ -167,8 +163,7 @@ public:
 		const_reverse_iterator& operator--() { ++this->ptr; return *this; }
 		const_reverse_iterator operator--(int) { auto tmp(*this); ++this->ptr; return tmp; }
 		bool operator==(const const_reverse_iterator &other) const {
-			return (this->lptr == other.lptr) ? (this->ptr == other.ptr) : false;
-		}
+			return (this->lptr == other.lptr) ? (this->ptr == other.ptr) : false; }
 		bool operator!=(const const_reverse_iterator &other) const { return !(*this == other); }
 		void leap() {
 			if (this->ptr == (*this->lptr).end()) {
@@ -199,7 +194,7 @@ public:
 		if (this->size() == 0) {
 			return this->rend();
 		}
-		return const_reverse_iterator(&data_, 3);
+		return const_reverse_iterator (&data_, 3);
 	}
 	const_reverse_iterator rend()   const {
 		if (this->size() == 0) {
