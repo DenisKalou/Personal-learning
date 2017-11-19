@@ -9,7 +9,9 @@ size_t factorial(size_t n)
 {
 	return (n == 1 || n == 0) ? 1 : factorial(n - 1) * n;
 }
-
+size_t combination(size_t n, size_t k) {
+	return factorial(n) / (factorial(n - k)*factorial(k));
+}
 template<class Iterator>
 size_t count_permutations(Iterator p, Iterator q)
 {
@@ -49,13 +51,13 @@ size_t count_permutations(Iterator p, Iterator q)
 	std::cout << max_perm << '\n';
 	size_t h_count = 0;
 	for (auto& a : v2_tmp) {
-		if (a > 1) { h_count++; }
-	}
+		count += a;
+	} 
 	for (auto& a : v2_tmp) {
 		if (a > 1) {
 			count += a - 1;
 			std::cout << factorial(num - (a - 1)) / factorial(a) << '\n';
-			max_perm -= factorial(num - (a - 1)) / factorial(a);
+			denum *= factorial(a)
 			std::cout << max_perm << '\n';
 		}
 	} 
