@@ -21,22 +21,14 @@ struct IntCons<N, IntList<Args...>> {
 	using type = IntList<N, Args...>;
 };
 
-template<int N, class IC>
-struct Generate;
-
-template<int N, class IC = IntCons<N-2, IntList<N-1>>>
+template<int N, int K = 0>
 struct Generate {
-	using type = typename IC::type;
+	using type = typename IntCons<K, typename Generate<N - 1, K + 1>::type>::type;
 };
 
-template<int N>
-struct Generate<N, class IC> {
-	using type = typename Generate<N - 1>::type;
-};
-
-template<>
-struct Generate<1> {
-	using type = typename IntCons<0, IntList<1>>::type;
+template<int N2>
+struct Generate<0, N2> {
+	using type = IntList<>;
 };
 
 
