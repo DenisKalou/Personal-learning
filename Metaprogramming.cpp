@@ -59,6 +59,11 @@ struct Plus
 {
 	static int const value = a + b;
 };
+template<int a, int b>
+struct Minus
+{
+	static int const value = a - b;
+};
 
 template<class L1, class L2, template<int...> class F>
 struct Zip;
@@ -71,15 +76,49 @@ struct Zip<L1<Ints1...>, L2<Ints2...>, F>
 	using type = L1<F<Ints1, Ints2>::value...>;
 };
 
+template<class... L>
+struct Quantity;
+
+template<int... Ints>
+struct Quantity<IntList<Ints...>> {
+private:
+	
+	double val_;
+public:
+	using type = IntList<Ints...>;
+	explicit Quantity(const double& val)
+		: val_(val) {};
+	~Quantity() {};
+	double& value() const{
+		return val_;
+	}
+	double& operator/(const Quantity& other) {
+		val_ *= other.val_;
+		using type = typename Zip<type, typename other::type, Minus>::type;
+	}
+};
+
+template<int m = 0, int kg = 0, int s = 0, int A = 0, int K = 0, int mol = 0, int cd = 0>
+using Dimension = IntList<m, kg, s, A, K, mol, cd>;
+
+using NumberQ = Quantity<Dimension<>>;          // число без размерности
+using LengthQ = Quantity<Dimension<1>>;          // метры
+using MassQ = Quantity<Dimension<0, 1>>;       // килограммы
+using TimeQ = Quantity<Dimension<0, 0, 1>>;    // секунды
+using VelocityQ = Quantity<Dimension<1, 0, -1>>;   // метры в секунду
+using AccelQ = Quantity<Dimension<1, 0, -2>>;   // ускорение, метры в секунду в квадрате
+using ForceQ = Quantity<Dimension<1, 1, -2>>;   // сила в ньютонах
+
 int main()
 {
-	// два списка одной длины
-	using L1 = IntList<1, 2, 3, 4, 5>;
-	using L2 = IntList<1, 3, 7, 7, 2>;
+	LengthQ   l{ 30000 };      // 30 км
+	TimeQ     t{ 10 * 60 };    // 10 минут
+							   // вычисление скорости
+	//VelocityQ v = l / t;     // результат типа VelocityQ, 50 м/с
 
-	// результат применения — список с поэлементными суммами
-	using L3 = Zip<L1, L2, Plus>::type;  // IntList<2, 5, 10, 11, 7>
-	printIntList<L3>(std::cout);
-	//std::cout << L3 << '\n';
+	//AccelQ    a{ 9.8 };        // ускорение свободного падения
+	//MassQ     m{ 80 };         // 80 кг
+							   // сила притяжения, которая действует на тело массой 80 кг
+	//ForceQ    f = m * a;     // результат типа ForceQ
 	return 0;
 }
