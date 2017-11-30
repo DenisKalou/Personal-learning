@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include <iostream>
+#include <tuple>
 
 template<int... Args>
 struct IntList;
@@ -23,23 +24,67 @@ struct IntCons<N, IntList<Args...>> {
 
 template<int N, int K = 0>
 struct Generate {
-	using type = typename IntCons<K, typename Generate<N - 1, K + 1>::type>::type;
+	typedef typename IntCons<K, typename Generate<N - 1, K + 1>::type>::type type;
 };
 
-template<int N2>
-struct Generate<0, N2> {
-	using type = IntList<>;
+template<int K>
+struct Generate<0, K> {
+	typedef IntList<> type;
 };
 
+template<class Fun, class... Args, 
+	class Index = typename Generate<sizeof... (Args)>::type>
+auto apply(Fun f, const std::tuple<Args...>& t)
+-> decltype(apply(f, t, Index()))
+{
+	return apply(f, t, Index());
+}
+template<class Fun, class... Args, int... Indices>
+auto apply(Fun f, const std::tuple<Args...>& t, IntList<Indices...>)
+-> decltype(f(std::get<Indices>(t)...))
+{
+	return f(std::get<Indices>(t)...);
+}
+
+template<class IL>
+void printIntList(std::ostream& os) {
+	os << (typename IL::Head) << " ";
+	printIntList<typename IL::Tail>(os);
+}
+template<>
+void printIntList<IntList<>>(std::ostream& os) {}
+
+template<int a, int b>
+struct Plus
+{
+	static int const value = a + b;
+};
+
+template<class L1, class L2, 
+	template<int...> class F>
+struct Zip;
+
+template<class L1, class L2, 
+	template<int...> class F>
+using Zip2 = typename Zip<L1, L2, F>::type;
+
+template<template<int...> class L1, int... I1,
+	template<int...> class L2, int... I2, 
+	template<int...> class F>
+struct Zip<L1<I1...>, L2<I2...>, F>
+{
+	using type = IntList<F<I1, I2>::value>;
+};
 
 int main()
-{
-	using L1 = IntList<2, 3, 4>;
+{ 
+	// два списка одной длины
+	using L1 = IntList<1, 2, 3, 4, 5>;
+	using L2 = IntList<1, 3, 7, 7, 2>;
 
-	using L2 = IntCons<1, L1>::type;   // IntList<1,2,3,4>
-
-	using L3 = Generate<5>::type;
-	std::cout << L3::Head << L3::Tail::Head  << '\n';
-
+	// результат применения — список с поэлементными суммами
+	const int L3 = Zip<L1, L2, Plus>::type;  // IntList<2, 5, 10, 11, 7>
+	//printIntList<L3>(std::cout);
+	std::cout << L3 << '\n';
 	return 0;
 }
