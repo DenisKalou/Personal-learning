@@ -64,16 +64,12 @@ template<class L1, class L2,
 	template<int...> class F>
 struct Zip;
 
-template<class L1, class L2, 
-	template<int...> class F>
-using Zip2 = typename Zip<L1, L2, F>::type;
-
-template<template<int...> class L1, int... I1,
-	template<int...> class L2, int... I2, 
-	template<int...> class F>
-struct Zip<L1<I1...>, L2<I2...>, F>
+template<class L1, 
+	class L2, 
+	template<int,int> class F>
+struct Zip<L1, L2, F>
 {
-	using type = IntList<F<I1, I2>::value>;
+	using type = typename IntCons<F<typename L1::Head, typename L2::Head>, typename Zip<typename L1::Tail, typename L2::Tail, F>::type;
 };
 
 int main()
