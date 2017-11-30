@@ -32,10 +32,10 @@ struct Generate<0, K> {
 	typedef IntList<> type;
 };
 
-template<class Fun, class... Args, 
+template<class Fun, class... Args,
 	class Index = typename Generate<sizeof... (Args)>::type>
-auto apply(Fun f, const std::tuple<Args...>& t)
--> decltype(apply(f, t, Index()))
+	auto apply(Fun f, const std::tuple<Args...>& t)
+	-> decltype(apply(f, t, Index()))
 {
 	return apply(f, t, Index());
 }
@@ -60,27 +60,26 @@ struct Plus
 	static int const value = a + b;
 };
 
-template<class L1, class L2, 
-	template<int...> class F>
+template<class L1, class L2, template<int...> class F>
 struct Zip;
 
-template<class L1, 
-	class L2, 
-	template<int,int> class F>
-struct Zip<L1, L2, F>
+template<template<int...> class L1, int... Ints1, 
+	template<int...> class L2, int... Ints2,
+	template<int...> class F>
+struct Zip<L1<Ints1...>, L2<Ints2...>, F>
 {
-	using type = typename IntCons<F<typename L1::Head, typename L2::Head>, typename Zip<typename L1::Tail, typename L2::Tail, F>::type;
+	using type = L1<F<Ints1, Ints2>::value...>;
 };
 
 int main()
-{ 
+{
 	// два списка одной длины
 	using L1 = IntList<1, 2, 3, 4, 5>;
 	using L2 = IntList<1, 3, 7, 7, 2>;
 
 	// результат применения — список с поэлементными суммами
-	const int L3 = Zip<L1, L2, Plus>::type;  // IntList<2, 5, 10, 11, 7>
-	//printIntList<L3>(std::cout);
-	std::cout << L3 << '\n';
+	using L3 = Zip<L1, L2, Plus>::type;  // IntList<2, 5, 10, 11, 7>
+	printIntList<L3>(std::cout);
+	//std::cout << L3 << '\n';
 	return 0;
 }
