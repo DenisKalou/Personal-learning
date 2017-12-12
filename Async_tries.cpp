@@ -8,9 +8,6 @@
 #include <utility> // std::declval
 #include <type_traits>
 #include <future>
-// заголовок <future> уже подключён.
-// заново подключать не нужно
-// реализация функции mapreduce
 
 template<class It>
 std::vector<It> divideByThreads(It p, It q, size_t threads) {
