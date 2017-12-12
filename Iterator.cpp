@@ -5,7 +5,7 @@
 #include <list>
 #include <vector>
 //using namespace std;
-bool flag = false;
+
 template<class T>
 class VectorList
 {
@@ -138,14 +138,6 @@ public:
 private:
 	ListT data_;
 };
-
-template<class T>
-template<class It>
-void VectorList<T>::append(It p, It q)
-{
-	if (p != q)
-		data_.push_back(VectT(p, q));
-}
 int main() {
 	return 0;
 };
